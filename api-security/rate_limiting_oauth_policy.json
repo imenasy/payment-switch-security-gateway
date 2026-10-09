@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "policy_name": "DSACCO_RIPPS_RNDPS_Gateway_Security_Policy",
+  "version": "2.4.0",
+  "target_endpoints": [
+    "/api/v1/clearing/direct-debit",
+    "/api/v1/clearing/instant-payment",
+    "/api/v1/sacco/account-lookup"
+  ],
+  "authentication": {
+    "type": "OAuth2.0_Mutual_TLS",
+    "token_issuer": "https://auth.cooperativebank.rw/oauth/token",
+    "signature_algorithm": "PS256",
+    "token_lifetime_seconds": 300,
+    "require_proof_of_possession": true
+  },
+  "rate_limiting": {
+    "burst_limit_per_second": 50,
+    "sustained_limit_per_minute": 1500,
+    "quota_by": "client_certificate_serial",
+    "action_on_exceeded": "HTTP_429_TOO_MANY_REQUESTS"
+  },
+  "payload_inspection": {
+    "max_payload_size_kb": 128,
+    "enforce_json_schema_validation": true,
+    "sanitize_headers": ["Authorization", "X-Signature", "X-Origin-District-SACCO"],
+    "block_on_regex": [
+      "(?i)(exec|union select|insert into|drop table|<script>)",
+      "(?i)(--|;|/\\*)"
+    ]
+  }
+}
